@@ -5,6 +5,7 @@ packaging==20.9
 pluggy==0.13.1
 psycopg3 @ git+https://github.com/psycopg/psycopg3.git@45d04a6027888d2a73cb45f118365647a51dbecf#subdirectory=psycopg3
 py==1.10.0
+pykka==3.0.0
 pyparsing==2.4.7
 pytest==6.2.3
 toml==0.10.2
