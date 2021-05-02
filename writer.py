@@ -1,3 +1,5 @@
+# Main entry point for the writer service
+
 import os
 
 import json
@@ -12,7 +14,7 @@ connection = psycopg3.connect(
 )
 
 consumer = KafkaConsumer(
-    'numtest',
+    os.getenv('KAFKA_TOPIC', 'localhost:9092'),
     bootstrap_servers=[os.getenv('KAFKA_HOST', 'localhost:9092')],
     auto_offset_reset='earliest',
     enable_auto_commit=True,

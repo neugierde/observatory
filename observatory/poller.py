@@ -1,11 +1,35 @@
 import pykka
+import requests
+import time
+
 
 class Poller(pykka.ThreadingActor):
     """
-    This actor polls a website (given )
+    This actor polls a website (given uri etc)
     """
 
-    pass
+    def __init__(self, notifier: pykka.ActorProxy, owner: pykka.ActorProxy):
+        super().__init__()
+        self.notifier = notifier
+        self.owner = owner
+
+    def check(self, message: dict):
+        uri = message['uri']  # the URL to test
+        re = message['re']  # an options regular expression (already compiled)
+        now = time.time()
+
+        response = requests.get(uri)
+
+        data = {
+            'uri': uri,
+            'status': response.status_code,
+            'time': response.elapsed,
+            'timestamp': now,
+            'match_re': (re.search(response.text) is not None) if re else None
+        }
+
+        self.notifier.notify(data)
+        self.owner.done(self.actor_ref.proxy())
 
 
 class Supervisor(pykka.ThreadingActor):
@@ -15,4 +39,32 @@ class Supervisor(pykka.ThreadingActor):
     observation to one of them.
     """
 
-    pass
+    def __init__(self, notifier, owner):
+        super().__init__()
+        self.notifier = notifier
+        self.owner = owner
+
+    def check(self, payload):
+        """
+        Forwards the payload to a suitable poller and returns immediately.
+        """
+        # starts a new poller for each check
+        poller = Poller.start(notifier=self.notifier,
+                              owner=self.actor_ref.proxy()).proxy()
+        # alternatives:
+        #   hashring: take a poller based on payload['uri']
+        #   round-robin: shift a poller from the queue
+        #   thread-per-uri: take or start a poller from the poller dict
+        #                   using payload['uri'] as the key
+
+        poller.check(payload)
+
+    def done(self, poller_ref):
+        """
+        Recycles, or disposes of, a used poller
+        """
+        # stops the used poller
+        poller.stop()
+        # alternatives:
+        #   hashring, thread-per-uri: do nothing
+        #   round-robin: push to end of poller queue

@@ -16,4 +16,8 @@ producer = KafkaProducer(
 
 sites = toml.load(os.getenv('SITES_CONFIG', '../config/sites.toml'))
 
-Checker.start(producer=producer, sites=sites)
+Checker.start(
+    producer=producer,
+    sites=sites,
+    topic=os.getenv('KAFKA_TOPIC', 'localhost:9092')
+)

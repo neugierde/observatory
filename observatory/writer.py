@@ -1,7 +1,7 @@
 import os
 import pykka
 
-from persister import Persister
+from .persister import Persister
 
 
 class Writer(pykka.ThreadingActor):
@@ -11,4 +11,7 @@ class Writer(pykka.ThreadingActor):
 
     def __init__(self, consumer, connection):
         super().__init__()
-        self.persister = Persister.start(consumer=consumer, owner=self.actor_ref)
+        self.persister = Persister.start(
+            consumer=consumer,
+            owner=self.actor_ref
+        )
