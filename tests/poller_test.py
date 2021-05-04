@@ -4,7 +4,7 @@ import datetime
 import re
 from datetime import timedelta
 from unittest.mock import patch, Mock
-from context import Poller
+from context import Poller, SiteConfig
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ def poller(notifier_mock, owner_mock):
 
 
 def test_poller(poller, notifier_mock, stubbed_successful_get):
-    poller.check(dict(uri='https://google.com', re=None)).get()
+    poller.check(SiteConfig(url='https://google.com')).get()
     notifier_mock.notify.assert_called_once
 
     arg = notifier_mock.notify.call_args.args[0]
@@ -51,7 +51,7 @@ def test_poller(poller, notifier_mock, stubbed_successful_get):
 
 
 def test_poller_with_matching_content(poller, notifier_mock, stubbed_successful_get):
-    poller.check(dict(uri='https://google.com', re=re.compile('cont'))).get()
+    poller.check(SiteConfig(url='https://google.com', re=re.compile('cont'))).get()
     notifier_mock.notify.assert_called_once
 
     arg = notifier_mock.notify.call_args.args[0]
@@ -62,7 +62,7 @@ def test_poller_with_matching_content(poller, notifier_mock, stubbed_successful_
     assert arg['match_re'] is True
 
 def test_poller_without_matching_content(poller, notifier_mock, stubbed_successful_get):
-    poller.check(dict(uri='https://google.com', re=re.compile('notfound'))).get()
+    poller.check(SiteConfig(url='https://google.com', re=re.compile('notfound'))).get()
     notifier_mock.notify.assert_called_once
 
     arg = notifier_mock.notify.call_args.args[0]

@@ -1,0 +1,8 @@
+[google]
+url = "https://google.com"
+every = 300 # five minutes
+
+[iphone]
+url = "https://www.apple.com/iphone/"
+every = 86400 # every day
+re = "Blast past fast."

@@ -2,6 +2,7 @@ import pykka
 import requests
 import time
 
+from .data.scheduled_site import SiteConfig
 
 class Poller(pykka.ThreadingActor):
     """
@@ -13,9 +14,9 @@ class Poller(pykka.ThreadingActor):
         self.notifier = notifier
         self.owner = owner
 
-    def check(self, message: dict):
-        uri = message['uri']  # the URL to test
-        re = message['re']  # an options regular expression (already compiled)
+    def check(self, config: SiteConfig):
+        uri = config.url  # the URL to test
+        re = config.re  # an options regular expression (already compiled)
         now = time.time()
 
         response = requests.get(uri)
@@ -44,7 +45,7 @@ class Supervisor(pykka.ThreadingActor):
         self.notifier = notifier
         self.owner = owner
 
-    def check(self, payload):
+    def check(self, payload: SiteConfig):
         """
         Forwards the payload to a suitable poller and returns immediately.
         """

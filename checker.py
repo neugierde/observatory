@@ -14,7 +14,8 @@ producer = KafkaProducer(
     value_serializer=lambda x: json.dumps(x).encode('utf-8')
 )
 
-sites = toml.load(os.getenv('SITES_CONFIG', '../config/sites.toml'))
+sites = [dict(title=k, **v)
+         for k, v in toml.load(os.getenv('SITES_CONFIG', '../config/sites.toml')).items()]
 
 Checker.start(
     producer=producer,
