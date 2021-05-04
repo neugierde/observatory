@@ -1,5 +1,5 @@
-import pykka
-import kafka
+from pykka import ThreadingActor, ActorProxy
+from kafka import KafkaProducer
 
 
 class Notifier(pykka.ThreadingActor):
@@ -9,7 +9,7 @@ class Notifier(pykka.ThreadingActor):
     The kafka client is injected.
     """
 
-    def __init__(self, producer: kafka.KafkaProducer, topic: str, owner: pykka.ActorRef):
+    def __init__(self, producer: KafkaProducer, topic: str, owner: ActorProxy):
         super().__init__()
         self.producer = producer
         self.topic = topic

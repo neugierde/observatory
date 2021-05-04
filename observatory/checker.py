@@ -1,6 +1,6 @@
 import os
-import pykka
-import kafka
+from pykka import ThreadingActor
+from kafka import KafkaProducer
 
 from .scheduler import Scheduler
 from .poller import Supervisor
@@ -9,12 +9,12 @@ from .notifier import Notifier
 from .data.scheduled_site import SiteConfig
 
 
-class Checker(pykka.ThreadingActor):
+class Checker(ThreadingActor):
     """
     Supervisor for the HTTP checker service
     """
 
-    def __init__(self, producer: kafka.KafkaProducer, topic: str, sites: list):
+    def __init__(self, producer: KafkaProducer, topic: str, sites: list):
         super().__init__()
         me = self.actor_ref.proxy()
         self.notifier = Notifier.start(

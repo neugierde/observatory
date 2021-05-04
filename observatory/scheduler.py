@@ -1,19 +1,20 @@
-import pykka
 from time import time, sleep
 from heapq import heappush, heapify, heappop
+
+from pykka import ThreadingActor, ActorProxy
 
 from .data.scheduled_site import SiteConfig
 
 
-class Scheduler(pykka.ThreadingActor):
+class Scheduler(ThreadingActor):
     """
     Manages a sorted set of future actions (observe an HTTP address).
 
     When the expected time comes, a message is sent out, and the action is
-    enqueued again at the right time.
+    enqueued again at the right future time.
     """
 
-    def __init__(self, sites: list, owner: pykka.ActorProxy, poller: pykka.ActorProxy):
+    def __init__(self, sites: list, owner: ActorProxy, poller: ActorProxy):
         super().__init__()
         self.owner = owner
         self.poller = poller
@@ -23,6 +24,7 @@ class Scheduler(pykka.ThreadingActor):
     def run(self):
         next_site = heappop(self.sites)
         now = time()
+
         if next_site.schedule > now:
             sleep(next_site.schedule - now)
 

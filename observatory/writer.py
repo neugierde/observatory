@@ -1,10 +1,10 @@
 import os
-import pykka
+from pykka import ThreadingActor
 
 from .persister import Persister
 
 
-class Writer(pykka.ThreadingActor):
+class Writer(ThreadingActor):
     """
     Supervisor for the HTTP writer service
     """
@@ -13,5 +13,6 @@ class Writer(pykka.ThreadingActor):
         super().__init__()
         self.persister = Persister.start(
             consumer=consumer,
+            conn=connection,
             owner=self.actor_ref
         )

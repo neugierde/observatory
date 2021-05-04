@@ -1,8 +1,8 @@
 # Main entry point for the writer service
 
 import os
-
 import json
+
 import psycopg3
 
 from kafka import KafkaConsumer

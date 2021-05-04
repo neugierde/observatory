@@ -1,22 +1,25 @@
-import pykka
 import requests
 import time
 
+from pykka import ThreadingActor, ActorProxy
+
 from .data.scheduled_site import SiteConfig
 
-class Poller(pykka.ThreadingActor):
+class Poller(ThreadingActor):
     """
-    This actor polls a website (given uri etc)
+    This actor polls a website (given uri etc). When done, sends a message
+    to the notifier with the observation, and calls back the owner to
+    perform disposal.
     """
 
-    def __init__(self, notifier: pykka.ActorProxy, owner: pykka.ActorProxy):
+    def __init__(self, notifier: ActorProxy, owner: ActorProxy):
         super().__init__()
         self.notifier = notifier
         self.owner = owner
 
     def check(self, config: SiteConfig):
-        uri = config.url  # the URL to test
-        re = config.re  # an options regular expression (already compiled)
+        uri = config.url
+        re = config.re
         now = time.time()
 
         response = requests.get(uri)
@@ -33,14 +36,14 @@ class Poller(pykka.ThreadingActor):
         self.owner.done(self.actor_ref.proxy())
 
 
-class Supervisor(pykka.ThreadingActor):
+class Supervisor(ThreadingActor):
     """
     Receives single requests for HTTP observations.
     Manages a pool of pollers (implementation may vary) and delegates the
     observation to one of them.
     """
 
-    def __init__(self, notifier, owner):
+    def __init__(self, notifier: ActorProxy, owner: ActorProxy):
         super().__init__()
         self.notifier = notifier
         self.owner = owner
@@ -60,7 +63,7 @@ class Supervisor(pykka.ThreadingActor):
 
         poller.check(payload)
 
-    def done(self, poller_ref):
+    def done(self, poller: ActorProxy):
         """
         Recycles, or disposes of, a used poller
         """
