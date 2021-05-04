@@ -4,5 +4,5 @@ every = 300 # five minutes
 
 [iphone]
 url = "https://www.apple.com/iphone/"
-every = 86400 # every day
+every = 10 # every day
 re = "Blast past fast."

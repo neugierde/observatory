@@ -12,8 +12,7 @@ def producer_mock(mocker):
 
 @pytest.fixture
 def notifier(producer_mock):
-    notifier = Notifier.start(producer=producer_mock,
-                              topic='my_topic', owner=None)
+    notifier = Notifier.start(producer=producer_mock, owner=None)
 
     yield notifier.proxy()
 
@@ -23,5 +22,4 @@ def notifier(producer_mock):
 def test_notifier(notifier, producer_mock):
     notifier.notify({'data': 'foo', 'other_data': 'bar'}).get()
 
-    producer_mock.send.assert_called_once_with(
-        'my_topic', value={'data': 'foo', 'other_data': 'bar'})
+    producer_mock.assert_called_once_with({'data': 'foo', 'other_data': 'bar'})

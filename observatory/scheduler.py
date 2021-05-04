@@ -16,9 +16,10 @@ class Scheduler(ThreadingActor):
 
     def __init__(self, sites: list, owner: ActorProxy, poller: ActorProxy):
         super().__init__()
-        self.owner = owner
-        self.poller = poller
-        self.sites = [SiteConfig(s).schedule() for s in sites]
+        self._owner = owner
+        self._poller = poller
+        self.sites = [SiteConfig(**s).schedule() for s in sites]
+
         heapify(self.sites)
 
     def run(self):
@@ -28,7 +29,7 @@ class Scheduler(ThreadingActor):
         if next_site.schedule > now:
             sleep(next_site.schedule - now)
 
-        self.poller.check(next_site.config)
+        self._poller.check(next_site.config)
 
         heappush(self.sites, next_site.next_schedule())
-        self.proxy().run()
+        self.actor_ref.proxy().run()

@@ -15,10 +15,11 @@ producer = KafkaProducer(
 )
 
 sites = [dict(title=k, **v)
-         for k, v in toml.load(os.getenv('SITES_CONFIG', '../config/sites.toml')).items()]
+         for k, v in toml.load(os.getenv('SITES_CONFIG', 'config/sites.toml')).items()]
+
+topic = os.getenv('KAFKA_TOPIC', 'my-topic')
 
 Checker.start(
-    producer=producer,
-    sites=sites,
-    topic=os.getenv('KAFKA_TOPIC', 'localhost:9092')
+    producer=lambda value: producer.send(topic, value),
+    sites=sites
 )

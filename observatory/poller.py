@@ -14,8 +14,8 @@ class Poller(ThreadingActor):
 
     def __init__(self, notifier: ActorProxy, owner: ActorProxy):
         super().__init__()
-        self.notifier = notifier
-        self.owner = owner
+        self._notifier = notifier
+        self._owner = owner
 
     def check(self, config: SiteConfig):
         uri = config.url
@@ -23,17 +23,16 @@ class Poller(ThreadingActor):
         now = time.time()
 
         response = requests.get(uri)
-
         data = {
             'uri': uri,
             'status': response.status_code,
-            'time': response.elapsed,
+            'time': response.elapsed.total_seconds(),
             'timestamp': now,
             'match_re': (re.search(response.text) is not None) if re else None
         }
 
-        self.notifier.notify(data)
-        self.owner.done(self.actor_ref.proxy())
+        self._notifier.notify(data)
+        self._owner.done(self.actor_ref.proxy())
 
 
 class Supervisor(ThreadingActor):
@@ -45,15 +44,16 @@ class Supervisor(ThreadingActor):
 
     def __init__(self, notifier: ActorProxy, owner: ActorProxy):
         super().__init__()
-        self.notifier = notifier
-        self.owner = owner
+        self._notifier = notifier
+        self._owner = owner
+        print("starting", self)
 
     def check(self, payload: SiteConfig):
         """
         Forwards the payload to a suitable poller and returns immediately.
         """
         # starts a new poller for each check
-        poller = Poller.start(notifier=self.notifier,
+        poller = Poller.start(notifier=self._notifier,
                               owner=self.actor_ref.proxy()).proxy()
         # alternatives:
         #   hashring: take a poller based on payload['uri']

@@ -45,7 +45,7 @@ def test_poller(poller, notifier_mock, stubbed_successful_get):
     arg = notifier_mock.notify.call_args.args[0]
     assert arg['uri'] == 'https://google.com'
     assert arg['status'] == 200
-    assert arg['time'] == datetime.timedelta(microseconds=120000)
+    assert arg['time'] == 0.12
     assert isinstance(arg['timestamp'], float)
     assert arg['match_re'] is None
 
@@ -57,7 +57,7 @@ def test_poller_with_matching_content(poller, notifier_mock, stubbed_successful_
     arg = notifier_mock.notify.call_args.args[0]
     assert arg['uri'] == 'https://google.com'
     assert arg['status'] == 200
-    assert arg['time'] == datetime.timedelta(microseconds=120000)
+    assert arg['time'] == 0.12
     assert isinstance(arg['timestamp'], float)
     assert arg['match_re'] is True
 
@@ -68,6 +68,6 @@ def test_poller_without_matching_content(poller, notifier_mock, stubbed_successf
     arg = notifier_mock.notify.call_args.args[0]
     assert arg['uri'] == 'https://google.com'
     assert arg['status'] == 200
-    assert arg['time'] == datetime.timedelta(microseconds=120000)
+    assert arg['time'] == 0.12
     assert isinstance(arg['timestamp'], float)
     assert arg['match_re'] is False

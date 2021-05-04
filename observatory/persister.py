@@ -25,7 +25,7 @@ class Persister(ThreadingActor):
 
     def __init__(self, owner: ActorProxy, conn: Any, consumer: KafkaConsumer):
         super().__init__()
-        self.owner = owner
+        self._owner = owner
         self.conn = conn
         self.consumer = consumer
 
@@ -38,7 +38,7 @@ class Persister(ThreadingActor):
                 self.conn.commit()
 
     @classmethod
-    def create_table(class, conn):
+    def create_table(cls, conn):
         with conn.cursor() as cur:
             cur.execute(Persister.migration)
 

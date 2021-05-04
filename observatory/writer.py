@@ -11,7 +11,7 @@ class Writer(ThreadingActor):
 
     def __init__(self, consumer, connection):
         super().__init__()
-        self.persister = Persister.start(
+        self._persister = Persister.start(
             consumer=consumer,
             conn=connection,
             owner=self.actor_ref
