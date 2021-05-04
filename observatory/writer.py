@@ -11,6 +11,10 @@ class Writer(ThreadingActor):
 
     def __init__(self, consumer, connection):
         super().__init__()
+
+        Persister.migrate(connection)
+        print('migrated')
+
         self._persister = Persister.start(
             consumer=consumer,
             conn=connection,

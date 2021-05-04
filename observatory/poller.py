@@ -24,6 +24,7 @@ class Poller(ThreadingActor):
 
         response = requests.get(uri)
         data = {
+            'title': config.title or uri,
             'uri': uri,
             'status': response.status_code,
             'time': response.elapsed.total_seconds(),
@@ -46,7 +47,6 @@ class Supervisor(ThreadingActor):
         super().__init__()
         self._notifier = notifier
         self._owner = owner
-        print("starting", self)
 
     def check(self, payload: SiteConfig):
         """
